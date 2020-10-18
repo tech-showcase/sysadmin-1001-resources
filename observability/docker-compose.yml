@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
@@ -18,9 +19,7 @@ services:
     ports:
       - 9200:9200
     networks:
-      - elastic
-#    logging:
-#      driver: none
+      - observability
 
   es02:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
@@ -40,9 +39,9 @@ services:
     ports:
       - 9201:9200
     networks:
-      - elastic
-#    logging:
-#      driver: none
+      - observability
+    logging:
+      driver: none
 
   es03:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
@@ -62,9 +61,9 @@ services:
     ports:
       - 9202:9200
     networks:
-      - elastic
-#    logging:
-#      driver: none
+      - observability
+    logging:
+      driver: none
 
   kib01:
     image: docker.elastic.co/kibana/kibana:7.7.0
@@ -74,34 +73,40 @@ services:
       ELASTICSEARCH_URL: http://es01:9200
       ELASTICSEARCH_HOSTS: http://es01:9200
     networks:
-      - elastic
-#    logging:
-#      driver: none
+      - observability
+    depends_on:
+      - es01
 
   apm01:
     image: docker.elastic.co/apm/apm-server:7.7.0
     ports:
       - 8200:8200
     volumes:
-      - ./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml
+      - ./elastic-stack/apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml
     environment:
       - xpack.monitoring.elasticsearch.hosts=http://es01:9200
     networks:
-      - elastic
-#    logging:
-#      driver: none
+      - observability
 
 #  logstash01:
 #    image: docker.elastic.co/logstash/logstash:7.7.0
 #    volumes:
-#      - ./logstash/pipeline:/usr/share/logstash/pipeline
+#      - ./elastic-stack/logstash/pipeline:/usr/share/logstash/pipeline
 #    environment:
 #      - xpack.monitoring.elasticsearch.hosts=http://es01:9200
 #    ports:
 #      - 5044:5044
 #      - 9600:9600
 #    networks:
-#      - elastic
+#      - observability
+
+  jaeger-tracing:
+    image: jaegertracing/all-in-one:1.20
+    ports:
+      - 5775:5775/udp
+      - 16686:16686
+    networks:
+      - observability
 
 volumes:
   es-data01:
@@ -112,5 +117,5 @@ volumes:
     driver: local
 
 networks:
-  elastic:
+  observability:
     driver: bridge
