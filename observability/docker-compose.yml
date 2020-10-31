@@ -114,6 +114,7 @@ services:
       - 9090:9090
     networks:
       - observability
+      - service-discovery
     volumes:
       - ./prometheus/config:/etc/prometheus
 
@@ -128,3 +129,6 @@ volumes:
 networks:
   observability:
     driver: bridge
+  service-discovery:
+    external:
+      name: service-discovery_service-discovery
