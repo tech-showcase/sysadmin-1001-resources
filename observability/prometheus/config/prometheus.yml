@@ -11,5 +11,17 @@ scrape_configs:
   - job_name: 'entertainment-service'
     scrape_interval: 5s
     metrics_path: /observability/metrics
+    consul_sd_configs:
+      - server: 'consul-server:8500'
+        services: ['entertainment-service']
+        refresh_interval: 15s
+  - job_name: 'covid19-service'
+    scrape_interval: 5s
+    metrics_path: /observability/metrics
     static_configs:
-      - targets: ['entertainment-service:8080']
+      - targets: ['covid19-service:8080']
+  - job_name: 'api-gateway'
+    scrape_interval: 5s
+    metrics_path: /observability/metrics
+    static_configs:
+      - targets: ['api-gateway:8080']
